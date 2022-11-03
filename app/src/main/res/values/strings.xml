@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Simon_Tarea3_3_PMDM</string>
+    <string name="boton_amarillo">botón amarillo</string>
+    <string name="boton_azul">botón azul</string>
+    <string name="boton_verde">botón verde</string>
+    <string name="boton_rosa">botón rosa</string>
+</resources>
