@@ -7,6 +7,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import kotlin.random.Random
 
@@ -17,6 +18,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var btnVerde: ImageButton? = null
     private var btnRosa: ImageButton? = null
     //Contadores de puntuacion
+
+    private var tvRonda: TextView? = null
 
     //Otras variables
     private var acertado = false
@@ -46,6 +49,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btnAzul = findViewById(R.id.btnAzul)
         btnVerde = findViewById(R.id.btnVerde)
         btnRosa = findViewById(R.id.btnRosa)
+
+
+        tvRonda = findViewById(R.id.tvRonda)
 
         btnAmarillo?.setOnClickListener(this)
         btnAzul?.setOnClickListener(this)
@@ -102,7 +108,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     /**
      * Elige un color con Random y llama al metodo resaltaColor pasando el boton correspondiente
      */
-    //NO SE COMO HAC ER PARA QUE ME MUESTRE LOS COLORES UNO A UNO EN ORDEN Y NO TODOS A LA VEZ
+    //NO SE COMO HACER PARA QUE ME MUESTRE LOS COLORES UNO A UNO EN ORDEN Y NO TODOS A LA VEZ
     private fun secuenciaColores() {
         val color: Int = Random.nextInt(0, 3)
         coloresMostrados?.add(color)
@@ -134,6 +140,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .setPositiveButton("Sí") { _, _ ->
                     Log.d("Dialog", "---------------- Sí ----------------")
                     contRonda = 1
+                    tvRonda?.text = contRonda.toString()
                     btnPulsados= ArrayList()
                     coloresMostrados= ArrayList()
                     secuenciaColores()
@@ -147,6 +154,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .show()
         }else if (contPulsados>=contRonda) {
             contRonda++
+            tvRonda?.text = contRonda.toString()
             secuenciaColores()
             habilitarBtn()
         }
