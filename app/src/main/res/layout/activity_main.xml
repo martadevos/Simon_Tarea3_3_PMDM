@@ -6,6 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ronda: " />
+
+        <TextView
+            android:id="@+id/tvRonda"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="" />
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -20,20 +40,20 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:background="@color/transparent"
+            android:contentDescription="@string/boton_amarillo"
             app:srcCompat="@drawable/btn_amarillo_shape"
             tools:layout_editor_absoluteX="78dp"
-            tools:layout_editor_absoluteY="58dp"
-            android:contentDescription="@string/boton_amarillo" />
+            tools:layout_editor_absoluteY="58dp" />
 
         <ImageButton
             android:id="@+id/btnAzul"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:background="@color/transparent"
+            android:contentDescription="@string/boton_azul"
             app:srcCompat="@drawable/btn_azul_shape"
             tools:layout_editor_absoluteX="78dp"
-            tools:layout_editor_absoluteY="58dp"
-            android:contentDescription="@string/boton_azul" />
+            tools:layout_editor_absoluteY="58dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -50,23 +70,23 @@
             android:id="@+id/btnVerde"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            app:srcCompat="@drawable/btn_verde_shape"
             android:background="@color/transparent"
+            android:contentDescription="@string/boton_verde"
+            app:srcCompat="@drawable/btn_verde_shape"
             tools:layout_editor_absoluteX="78dp"
-            tools:layout_editor_absoluteY="58dp"
-            android:contentDescription="@string/boton_verde" />
+            tools:layout_editor_absoluteY="58dp" />
+
         <ImageButton
             android:id="@+id/btnRosa"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            app:srcCompat="@drawable/btn_rosa_shape"
             android:background="@color/transparent"
+            android:contentDescription="@string/boton_rosa"
+            app:srcCompat="@drawable/btn_rosa_shape"
             tools:layout_editor_absoluteX="78dp"
-            tools:layout_editor_absoluteY="58dp"
-            android:contentDescription="@string/boton_rosa" />
+            tools:layout_editor_absoluteY="58dp" />
 
     </LinearLayout>
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

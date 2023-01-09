@@ -7,30 +7,33 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     //Botones de colores
-    var btnAmarillo: ImageButton? = null
-    var btnAzul: ImageButton? = null
-    var btnVerde: ImageButton? = null
-    var btnRosa: ImageButton? = null
+    private var btnAmarillo: ImageButton? = null
+    private var btnAzul: ImageButton? = null
+    private var btnVerde: ImageButton? = null
+    private var btnRosa: ImageButton? = null
     //Contadores de puntuacion
 
+    private var tvRonda: TextView? = null
+
     //Otras variables
-    var acertado = false
-    var contRonda: Int = 0
-    var contPulsados: Int = 0
-    var btnPulsados: ArrayList<Int>? = null
-    var coloresMostrados: ArrayList<Int>? = null
-    val coloresBrillantes: Array<Int> = arrayOf(
+    private var acertado = false
+    private var contRonda = 0
+    private var contPulsados = 0
+    private var btnPulsados: ArrayList<Int>? = ArrayList()
+    private var coloresMostrados: ArrayList<Int>? = ArrayList()
+    private val coloresBrillantes: Array<Int> = arrayOf(
         R.drawable.btn_amarillo_birillante_shape,
         R.drawable.btn_azul_birillante_shape,
         R.drawable.btn_verde_birillante_shape,
         R.drawable.btn_rosa_birillante_shape
     )
-    val coloresApagados: Array<Int> = arrayOf(
+    private val coloresApagados: Array<Int> = arrayOf(
         R.drawable.btn_amarillo_shape,
         R.drawable.btn_azul_shape,
         R.drawable.btn_verde_shape,
@@ -47,6 +50,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btnVerde = findViewById(R.id.btnVerde)
         btnRosa = findViewById(R.id.btnRosa)
 
+
+        tvRonda = findViewById(R.id.tvRonda)
+
         btnAmarillo?.setOnClickListener(this)
         btnAzul?.setOnClickListener(this)
         btnVerde?.setOnClickListener(this)
@@ -57,7 +63,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             .setMessage("¿Desea comenzar el juego?")
             .setPositiveButton("Sí") { _, _ ->
                 Log.d("Dialog", "---------------- Sí ----------------")
-                juego()
+                comienzaRonda()
             }
             .setNegativeButton("No") { _, _ ->
                 Log.d("Dialog", "---------------- No ----------------")
@@ -102,43 +108,30 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     /**
      * Elige un color con Random y llama al metodo resaltaColor pasando el boton correspondiente
      */
+    //NO SE COMO HACER PARA QUE ME MUESTRE LOS COLORES UNO A UNO EN ORDEN Y NO TODOS A LA VEZ
     private fun secuenciaColores() {
-        var color: Int
-        do {
-            color = Random.nextInt(0, 3)
-            coloresMostrados?.add(color)
-            when (color) {
-                0 -> resaltaColor(color, btnAmarillo!!)
-                1 -> resaltaColor(color, btnAzul!!)
-                2 -> resaltaColor(color, btnVerde!!)
-                3 -> resaltaColor(color, btnRosa!!)
+        val color: Int = Random.nextInt(0, 3)
+        coloresMostrados?.add(color)
+        for (i  in 0 until coloresMostrados?.size!!) {
+            when (coloresMostrados!![i]) {
+                0 -> resaltaColor(0, btnAmarillo!!)
+                1 -> resaltaColor(1, btnAzul!!)
+                2 -> resaltaColor(2, btnVerde!!)
+                3 -> resaltaColor(3, btnRosa!!)
             }
-        } while (coloresMostrados?.lastIndex!! < contRonda)
+        }
     }
-
+//NO SE XQ ME COMPRUEBA SOLO CON EL ULTIMO BOTON PULSADO
     private fun comprobarColoresElegidos() {
         var i = 0
-        while (i < contRonda && acertado) {
-            if (btnPulsados!![i] != coloresMostrados!![i]) acertado = false
+        do {
+            acertado = btnPulsados!![i] == coloresMostrados!![i]
             i++
-        }
+        } while (i < contRonda && acertado)
     }
 
-    private fun juego() {
-        acertado = true
-        contRonda++
-        secuenciaColores()
-        habilitarBtn()
-        if (contPulsados>=contRonda) {
-            inhabilitarBtn()
-            comprobarColoresElegidos()
-        }
-        comienzaRonda()
-    }
 
     private fun comienzaRonda(){
-        btnPulsados = null
-        coloresMostrados = null
         if (!acertado) {
             //Salta una alerta para preguntar si se desea comenzar el juego, si se responde sí, comienza el juego, sino, se cierra la app
             AlertDialog.Builder(this)
@@ -146,8 +139,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .setMessage("¿Desea volver a jugar?")
                 .setPositiveButton("Sí") { _, _ ->
                     Log.d("Dialog", "---------------- Sí ----------------")
-                    contRonda = 0
-                    juego()
+                    contRonda = 1
+                    tvRonda?.text = contRonda.toString()
+                    btnPulsados= ArrayList()
+                    coloresMostrados= ArrayList()
+                    secuenciaColores()
+                    habilitarBtn()
                 }
                 .setNegativeButton("No") { _, _ ->
                     Log.d("Dialog", "---------------- No ----------------")
@@ -155,9 +152,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 }
                 .create()
                 .show()
-        }else if (acertado&&contPulsados>=contRonda) {
-            contPulsados = 0
-            juego()
+        }else if (contPulsados>=contRonda) {
+            contRonda++
+            tvRonda?.text = contRonda.toString()
+            secuenciaColores()
+            habilitarBtn()
         }
     }
 
@@ -181,5 +180,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         contPulsados ++
+        if (contPulsados>=contRonda) {
+            inhabilitarBtn()
+            comprobarColoresElegidos()
+
+            comienzaRonda()
+        }
     }
 }
