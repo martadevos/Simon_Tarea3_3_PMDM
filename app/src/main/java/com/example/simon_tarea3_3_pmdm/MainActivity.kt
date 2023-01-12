@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import kotlinx.coroutines.awaitAll
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -23,9 +24,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     //Otras variables
     private var acertado = false
-    private var contRonda = 0
+    private var colorMostrandose = false
+    private var contRonda = 1
     private var contPulsados = 0
-    private var btnPulsados: ArrayList<Int>? = ArrayList()
     private var coloresMostrados: ArrayList<Int>? = ArrayList()
     private val coloresBrillantes: Array<Int> = arrayOf(
         R.drawable.btn_amarillo_birillante_shape,
@@ -63,7 +64,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             .setMessage("¿Desea comenzar el juego?")
             .setPositiveButton("Sí") { _, _ ->
                 Log.d("Dialog", "---------------- Sí ----------------")
-                comienzaRonda()
+                tvRonda?.text = contRonda.toString()
+                secuenciaColores()
+                habilitarBtn()
             }
             .setNegativeButton("No") { _, _ ->
                 Log.d("Dialog", "---------------- No ----------------")
@@ -99,39 +102,48 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
      * @param color entero entre 0 y 3 que corresponde al color que se quiere cambiar
      * @param btnColor ImageButton que se quiere cambiar
      */
-    private fun resaltaColor(color: Int, btnColor: ImageButton) {
+    private fun resaltaColor(color: Int, btnColor: ImageButton, tiempo : Long) {
         val handler = Handler(Looper.myLooper()!!)
-        btnColor.setImageResource(coloresBrillantes[color])
-        handler.postDelayed({ btnColor.setImageResource(coloresApagados[color]) }, 1000)
+        handler.postDelayed({ btnColor.setImageResource(coloresBrillantes[color]) }, tiempo)
+        handler.postDelayed({ btnColor.setImageResource(coloresApagados[color]) }, 500+tiempo)
     }
 
     /**
      * Elige un color con Random y llama al metodo resaltaColor pasando el boton correspondiente
      */
-    //NO SE COMO HACER PARA QUE ME MUESTRE LOS COLORES UNO A UNO EN ORDEN Y NO TODOS A LA VEZ
     private fun secuenciaColores() {
-        val color: Int = Random.nextInt(0, 3)
+        val color: Int = (0..3).random(Random(System.nanoTime()))
+        var tiempo : Long = 0
         coloresMostrados?.add(color)
-        for (i  in 0 until coloresMostrados?.size!!) {
+        inhabilitarBtn()
+        for (i in 0 until coloresMostrados?.size!!) {
             when (coloresMostrados!![i]) {
-                0 -> resaltaColor(0, btnAmarillo!!)
-                1 -> resaltaColor(1, btnAzul!!)
-                2 -> resaltaColor(2, btnVerde!!)
-                3 -> resaltaColor(3, btnRosa!!)
+                0 -> resaltaColor(0, btnAmarillo!!, tiempo)
+                1 -> resaltaColor(1, btnAzul!!, tiempo)
+                2 -> resaltaColor(2, btnVerde!!, tiempo)
+                3 -> resaltaColor(3, btnRosa!!, tiempo)
             }
+            tiempo += 600
         }
     }
-//NO SE XQ ME COMPRUEBA SOLO CON EL ULTIMO BOTON PULSADO
-    private fun comprobarColoresElegidos() {
-        var i = 0
-        do {
-            acertado = btnPulsados!![i] == coloresMostrados!![i]
-            i++
-        } while (i < contRonda && acertado)
+
+    /**
+     * Recibe un entero que corresponde al color pulsado y asigna verdadero o falso
+     * a la variable acertado en función de si el color pulsado es igual que el mostrado
+     * @param btnPulsado Entero correspondiente al botón pulsado
+     */
+    private fun comprobarColoresElegidos(btnPulsado: Int) {
+        acertado = btnPulsado == coloresMostrados!![contPulsados]
     }
 
-
-    private fun comienzaRonda(){
+    /**
+     * Si se ha fallado la última ronda pregunta si desea volver a jugar y
+     * empieza una ronda nueva reseteando el juego; si se ha acertado,
+     * combprueba que se hayan pulsado tantos botones como colores se hayan
+     * mostrado y si es así, comienza una nueva ronda reseteando los pulsados y
+     * actualizando el letrero de ronda
+     */
+    private fun comienzaRonda() {
         if (!acertado) {
             //Salta una alerta para preguntar si se desea comenzar el juego, si se responde sí, comienza el juego, sino, se cierra la app
             AlertDialog.Builder(this)
@@ -141,8 +153,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     Log.d("Dialog", "---------------- Sí ----------------")
                     contRonda = 1
                     tvRonda?.text = contRonda.toString()
-                    btnPulsados= ArrayList()
-                    coloresMostrados= ArrayList()
+                    coloresMostrados = ArrayList()
+                    contPulsados = 0
                     secuenciaColores()
                     habilitarBtn()
                 }
@@ -152,39 +164,36 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 }
                 .create()
                 .show()
-        }else if (contPulsados>=contRonda) {
+        } else if (contPulsados >= contRonda) {
             contRonda++
+            contPulsados = 0
             tvRonda?.text = contRonda.toString()
             secuenciaColores()
             habilitarBtn()
         }
     }
 
+    /**
+     * Comprueba qué botón se ha pulsado y llama al método de comprobación pasando el
+     * entero correspondiente, aumenta el contador de pulsados y llama al método para
+     * comenzar nueva ronda
+     */
     override fun onClick(p0: View?) {
-        when (p0?.id){
-            btnAmarillo?.id->{
-                resaltaColor(0, btnAmarillo!!)
-                btnPulsados?.add(0)
+        when (p0?.id) {
+            btnAmarillo?.id -> {
+                comprobarColoresElegidos(0)
             }
-            btnAzul?.id->{
-                resaltaColor(1, btnAzul!!)
-                btnPulsados?.add(1)
+            btnAzul?.id -> {
+                comprobarColoresElegidos(1)
             }
-            btnVerde?.id->{
-                resaltaColor(2, btnVerde!!)
-                btnPulsados?.add(2)
+            btnVerde?.id -> {
+                comprobarColoresElegidos(2)
             }
-            btnRosa?.id->{
-                resaltaColor(3, btnRosa!!)
-                btnPulsados?.add(3)
+            btnRosa?.id -> {
+                comprobarColoresElegidos(3)
             }
         }
-        contPulsados ++
-        if (contPulsados>=contRonda) {
-            inhabilitarBtn()
-            comprobarColoresElegidos()
-
-            comienzaRonda()
-        }
+        contPulsados++
+        comienzaRonda()
     }
 }
